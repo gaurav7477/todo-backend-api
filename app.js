@@ -12,27 +12,30 @@ try {
   config({
     path: "./data/config.env",
   });
-}
-catch {
+} catch {
   config();
 }
 
 // Using Middlewares
 app.use(express.json());
 app.use(cookieParser());
+
+// Use cors middleware
 app.use(
   cors({
-    origin: [process.env.CLIENT_URL],
+    origin: [process.env.CLIENT_URL], // Specify the exact origin
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
 );
+
 // Using routes
-app.use("/api/v1/users", userRouter);
+app.use("/api/v1/user", userRouter);
 app.use("/api/v1/task", taskRouter);
 
 app.get("/", (req, res) => {
   res.send("Nice working");
 });
+
 // Using Error Middleware
 app.use(errorMiddleware);

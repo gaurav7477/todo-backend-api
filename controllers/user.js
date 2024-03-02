@@ -3,6 +3,29 @@ import bcrypt from "bcrypt";
 import { sendCookie } from "../utils/features.js";
 import ErrorHandler from "../middlewares/error.js";
 
+
+// for register user
+export const register = async (req, res, next) => {
+  try {
+    const { name, email, password } = req.body;
+
+    let user = await User.findOne({ email });
+
+    if (user) return next(new ErrorHandler("User Already Exist", 400));
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    user = await User.create({ name, email, password: hashedPassword });
+
+    sendCookie(user, res, "Registered Successfully", 201);
+  }
+  catch (error) {
+    next(error);
+  }
+};
+
+
+// for login user
 export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -22,24 +45,8 @@ export const login = async (req, res, next) => {
   }
 };
 
-export const register = async (req, res, next) => {
-  try {
-    const { name, email, password } = req.body;
 
-    let user = await User.findOne({ email });
-
-    if (user) return next(new ErrorHandler("User Already Exist", 400));
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    user = await User.create({ name, email, password: hashedPassword });
-
-    sendCookie(user, res, "Registered Successfully", 201);
-  } catch (error) {
-    next(error);
-  }
-};
-
+// get my profile
 export const getMyProfile = async (req, res) => {
   res.status(200).json({
     success: true,
@@ -47,8 +54,9 @@ export const getMyProfile = async (req, res) => {
   });
 };
 
+
+// for logged out
 export const logout = (req, res) => {
-  console.log(req)
   res
     .status(200)
     .cookie("token", "", {
